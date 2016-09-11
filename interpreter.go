@@ -11,7 +11,8 @@ import (
 var data [30000]byte
 
 func main() {
-	input := "++++++++++[>+++++++>++++++++++>+++>+<<<<-]>++.>+.+++++++..+++.>++.<<+++++++++++++++.>.+++.------.--------.>+.>."
+	// input := "++++++++++[>+++++++>++++++++++>+++>+<<<<-]>++.>+.+++++++..+++.>++.<<+++++++++++++++.>.+++.------.--------.>+.>."
+	input := "+[+[-]]"
 	dataPointer := 0
 
 	reader := bufio.NewReader(os.Stdin)
@@ -58,7 +59,7 @@ func main() {
 					panic(fmt.Sprintf("Encountered loop termination without opening bracket at idx: %v", i))
 				}
 			} else {
-				prevOpenLoopIdx = -1
+				prevOpenLoopIdx = strings.IndexByte(string(input[:i]), '[')
 				continue
 			}
 		}
