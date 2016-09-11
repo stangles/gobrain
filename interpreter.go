@@ -1,25 +1,23 @@
-package main
+package bf
 
 import (
 	"bufio"
+	"bytes"
+	"errors"
 	"fmt"
-	"os"
 	"strings"
 )
 
-// 30000 bytes according to brainfuck "spec"
-var data [30000]byte
+func Run(program string, reader *bufio.Reader) (string, error) {
+	var output bytes.Buffer
 
-func main() {
-	// input := "++++++++++[>+++++++>++++++++++>+++>+<<<<-]>++.>+.+++++++..+++.>++.<<+++++++++++++++.>.+++.------.--------.>+.>."
-	input := "+[+[-]]"
+	// 30000 bytes according to brainfuck "spec"
+	var data [30000]byte
+
 	dataPointer := 0
-
-	reader := bufio.NewReader(os.Stdin)
-
 	prevOpenLoopIdx := -1
-	for i := 0; i < len(input); i++ {
-		switch input[i] {
+	for i := 0; i < len(program); i++ {
+		switch program[i] {
 		case '>':
 			dataPointer++
 		case '<':
@@ -29,12 +27,11 @@ func main() {
 		case '-':
 			data[dataPointer]--
 		case '.':
-			fmt.Printf("%v", string(data[dataPointer]))
+			output.WriteString(string(data[dataPointer]))
 		case ',':
 			b, err := reader.ReadByte()
 			if err != nil {
-				fmt.Println(err)
-				return
+				return "", errors.New("error encountered when reading input")
 			}
 			data[dataPointer] = b
 		case '[':
@@ -43,25 +40,26 @@ func main() {
 				continue
 			} else {
 				// set ip to instruction after next ']'
-				afterClose := strings.IndexByte(string(input[i:]), ']')
+				afterClose := strings.IndexByte(string(program[i:]), ']')
 				if afterClose == -1 {
-					panic(fmt.Sprintf("Unterminated loop caught beginning at idx: %v", i))
+					return "", errors.New(fmt.Sprintf("Unterminated loop caught beginning at idx: %v", i))
 				}
 				prevOpenLoopIdx = -1
 				i = afterClose
 			}
 		case ']':
+			if prevOpenLoopIdx == -1 {
+				return "", errors.New(fmt.Sprintf("Encountered loop termination without opening bracket at idx: %v", i))
+			}
+
 			if data[dataPointer] != 0 {
 				// set ip to instruction after previous '['
-				if prevOpenLoopIdx != -1 {
-					i = prevOpenLoopIdx
-				} else {
-					panic(fmt.Sprintf("Encountered loop termination without opening bracket at idx: %v", i))
-				}
+				i = prevOpenLoopIdx
 			} else {
-				prevOpenLoopIdx = strings.IndexByte(string(input[:i]), '[')
+				prevOpenLoopIdx = strings.LastIndexByte(string(program[:i]), '[')
 				continue
 			}
 		}
 	}
+	return output.String(), nil
 }
