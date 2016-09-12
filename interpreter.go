@@ -30,6 +30,7 @@ func Run(program string, reader *bufio.Reader) (string, error) {
 			b, err := reader.ReadByte()
 			if err != nil {
 				if err.Error() == "EOF" {
+					// do nothing if we encounter EOF when reading input
 					continue
 				}
 				return "", errors.New(fmt.Sprintf("error encountered when reading input: %v", err))
