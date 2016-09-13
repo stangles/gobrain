@@ -75,7 +75,7 @@ func run(program string, reader *bufio.Reader) (string, error) {
 				// search forward for corresponding ']'
 				loopStart := i
 				i++
-				for count := 1; count != 0; i++ {
+				for count := 0; count > 0 || program[i] != ']'; i++ {
 					if i >= len(program) {
 						return "", errors.New(fmt.Sprintf("Unterminated loop caught beginning at idx: %v\n", loopStart))
 					}
@@ -87,21 +87,20 @@ func run(program string, reader *bufio.Reader) (string, error) {
 				}
 			}
 		case ']':
-			if data[dataPointer] != 0 {
-				// search backward for corresponding '['
-				loopEnd := i
-				i--
-				for count := 1; count != 0; i-- {
-					if i <= 0 {
-						return "", errors.New(fmt.Sprintf("Encountered loop termination without opening bracket at idx: %v\n", loopEnd))
-					}
-					if program[i] == '[' {
-						count--
-					} else if program[i] == ']' {
-						count++
-					}
+			// search backward for corresponding '['
+			loopEnd := i
+			i--
+			for count := 0; count > 0 || program[i] != '['; i-- {
+				if i <= 0 {
+					return "", errors.New(fmt.Sprintf("Encountered loop termination without opening bracket at idx: %v\n", loopEnd))
+				}
+				if program[i] == '[' {
+					count--
+				} else if program[i] == ']' {
+					count++
 				}
 			}
+			i--
 		}
 	}
 	return output.String(), nil
