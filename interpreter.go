@@ -1,13 +1,47 @@
-package bf
+package main
 
 import (
 	"bufio"
 	"bytes"
 	"errors"
 	"fmt"
+	"io/ioutil"
+	"os"
+	"strings"
 )
 
-func Run(program string, reader *bufio.Reader) (string, error) {
+func main() {
+	if len(os.Args) < 2 {
+		fmt.Fprintf(os.Stderr, "usage: ./gobrain filename.bf\n")
+		os.Exit(1)
+	}
+
+	filename := os.Args[1]
+	if !strings.HasSuffix(filename, ".bf") {
+		fmt.Fprintf(os.Stderr, "program filename must end with '.bf'\n")
+		os.Exit(1)
+	}
+
+	program := getProgramFromFile(filename)
+	output, err := run(program, bufio.NewReader(os.Stdin))
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "error encountered during program execution: %v", err)
+		os.Exit(1)
+	}
+
+	fmt.Printf(output)
+}
+
+func getProgramFromFile(filename string) string {
+	programBytes, err := ioutil.ReadFile(filename)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "could not open %v for reading\n", filename)
+		os.Exit(1)
+	}
+	return string(programBytes)
+}
+
+func run(program string, reader *bufio.Reader) (string, error) {
 	var output bytes.Buffer
 
 	// 30000 bytes according to brainfuck "spec"
@@ -33,7 +67,7 @@ func Run(program string, reader *bufio.Reader) (string, error) {
 					// do nothing if we encounter EOF when reading input
 					continue
 				}
-				return "", errors.New(fmt.Sprintf("error encountered when reading input: %v", err))
+				return "", errors.New(fmt.Sprintf("error encountered when reading input: %v\n", err))
 			}
 			data[dataPointer] = b
 		case '[':
@@ -43,7 +77,7 @@ func Run(program string, reader *bufio.Reader) (string, error) {
 				i++
 				for count := 1; count != 0; i++ {
 					if i >= len(program) {
-						return "", errors.New(fmt.Sprintf("Unterminated loop caught beginning at idx: %v", loopStart))
+						return "", errors.New(fmt.Sprintf("Unterminated loop caught beginning at idx: %v\n", loopStart))
 					}
 					if program[i] == ']' {
 						count--
@@ -59,7 +93,7 @@ func Run(program string, reader *bufio.Reader) (string, error) {
 				i--
 				for count := 1; count != 0; i-- {
 					if i <= 0 {
-						return "", errors.New(fmt.Sprintf("Encountered loop termination without opening bracket at idx: %v", loopEnd))
+						return "", errors.New(fmt.Sprintf("Encountered loop termination without opening bracket at idx: %v\n", loopEnd))
 					}
 					if program[i] == '[' {
 						count--
