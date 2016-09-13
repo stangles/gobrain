@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"strings"
 )
 
 func main() {
@@ -14,8 +15,15 @@ func main() {
 		fmt.Fprintf(os.Stderr, "usage: ./gobrain filename.bf\n")
 		os.Exit(1)
 	}
-	program := GetProgramFromFile(os.Args[1])
-	output, err := Run(program, bufio.NewReader(os.Stdin))
+
+	filename := os.Args[1]
+	if !strings.HasSuffix(filename, ".bf") {
+		fmt.Fprintf(os.Stderr, "program filename must end with '.bf'\n")
+		os.Exit(1)
+	}
+
+	program := getProgramFromFile(os.Args[1])
+	output, err := run(program, bufio.NewReader(os.Stdin))
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "error encountered during program execution: %v", err)
 		os.Exit(1)
@@ -24,7 +32,7 @@ func main() {
 	fmt.Printf(output)
 }
 
-func GetProgramFromFile(filename string) string {
+func getProgramFromFile(filename string) string {
 	programBytes, err := ioutil.ReadFile(filename)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "could not open %v for reading\n", filename)
@@ -33,7 +41,7 @@ func GetProgramFromFile(filename string) string {
 	return string(programBytes)
 }
 
-func Run(program string, reader *bufio.Reader) (string, error) {
+func run(program string, reader *bufio.Reader) (string, error) {
 	var output bytes.Buffer
 
 	// 30000 bytes according to brainfuck "spec"

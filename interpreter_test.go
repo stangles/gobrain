@@ -24,7 +24,7 @@ var bfTests = []struct {
 
 func TestInterpreter(t *testing.T) {
 	for _, tt := range bfTests {
-		actual, err := Run(tt.program, bufio.NewReader(bytes.NewReader([]byte(tt.input))))
+		actual, err := run(tt.program, bufio.NewReader(bytes.NewReader([]byte(tt.input))))
 		if err != nil {
 			t.Errorf("unexpected error: %v with program: %v", err, tt.program)
 		}
@@ -35,7 +35,7 @@ func TestInterpreter(t *testing.T) {
 }
 
 func TestUnterminatedLoop(t *testing.T) {
-	_, err := Run("[.", bufio.NewReader(bytes.NewReader([]byte(""))))
+	_, err := run("[.", bufio.NewReader(bytes.NewReader([]byte(""))))
 	if err == nil {
 		t.Errorf("expected error, instead err was nil")
 	}
@@ -47,7 +47,7 @@ func TestUnterminatedLoop(t *testing.T) {
 }
 
 func TestPrematureLoopTermination(t *testing.T) {
-	_, err := Run("+]", bufio.NewReader(bytes.NewReader([]byte(""))))
+	_, err := run("+]", bufio.NewReader(bytes.NewReader([]byte(""))))
 	if err == nil {
 		t.Errorf("expected error, instead err was nil")
 	}
