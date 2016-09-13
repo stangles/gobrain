@@ -1,11 +1,37 @@
-package bf
+package main
 
 import (
 	"bufio"
 	"bytes"
 	"errors"
 	"fmt"
+	"io/ioutil"
+	"os"
 )
+
+func main() {
+	if len(os.Args) < 2 {
+		fmt.Fprintf(os.Stderr, "usage: ./gobrain filename.bf\n")
+		os.Exit(1)
+	}
+	program := GetProgramFromFile(os.Args[1])
+	output, err := Run(program, bufio.NewReader(os.Stdin))
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "error encountered during program execution: %v", err)
+		os.Exit(1)
+	}
+
+	fmt.Printf(output)
+}
+
+func GetProgramFromFile(filename string) string {
+	programBytes, err := ioutil.ReadFile(filename)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "could not open %v for reading\n", filename)
+		os.Exit(1)
+	}
+	return string(programBytes)
+}
 
 func Run(program string, reader *bufio.Reader) (string, error) {
 	var output bytes.Buffer
