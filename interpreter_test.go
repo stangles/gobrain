@@ -40,7 +40,7 @@ func TestUnterminatedLoop(t *testing.T) {
 		t.Errorf("expected error, instead err was nil")
 	}
 
-	expectedErr := "Unterminated loop caught beginning at idx: 0"
+	expectedErr := "Unterminated loop caught beginning at idx: 0\n"
 	if err.Error() != expectedErr {
 		t.Errorf("expected err: %s, actual err: %s", expectedErr, err.Error())
 	}
@@ -52,7 +52,7 @@ func TestPrematureLoopTermination(t *testing.T) {
 		t.Errorf("expected error, instead err was nil")
 	}
 
-	expectedErr := "Encountered loop termination without opening bracket at idx: 1"
+	expectedErr := "Encountered loop termination without opening bracket at idx: 1\n"
 	if err.Error() != expectedErr {
 		t.Errorf("expected err: %s, actual err: %s", expectedErr, err.Error())
 	}

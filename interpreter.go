@@ -22,7 +22,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	program := getProgramFromFile(os.Args[1])
+	program := getProgramFromFile(filename)
 	output, err := run(program, bufio.NewReader(os.Stdin))
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "error encountered during program execution: %v", err)
@@ -66,7 +66,7 @@ func run(program string, reader *bufio.Reader) (string, error) {
 				if err.Error() == "EOF" {
 					continue
 				}
-				return "", errors.New(fmt.Sprintf("error encountered when reading input: %v", err))
+				return "", errors.New(fmt.Sprintf("error encountered when reading input: %v\n", err))
 			}
 			data[dataPointer] = b
 		case '[':
@@ -76,7 +76,7 @@ func run(program string, reader *bufio.Reader) (string, error) {
 				i++
 				for count := 1; count != 0; i++ {
 					if i >= len(program) {
-						return "", errors.New(fmt.Sprintf("Unterminated loop caught beginning at idx: %v", loopStart))
+						return "", errors.New(fmt.Sprintf("Unterminated loop caught beginning at idx: %v\n", loopStart))
 					}
 					if program[i] == ']' {
 						count--
@@ -92,7 +92,7 @@ func run(program string, reader *bufio.Reader) (string, error) {
 				i--
 				for count := 1; count != 0; i-- {
 					if i <= 0 {
-						return "", errors.New(fmt.Sprintf("Encountered loop termination without opening bracket at idx: %v", loopEnd))
+						return "", errors.New(fmt.Sprintf("Encountered loop termination without opening bracket at idx: %v\n", loopEnd))
 					}
 					if program[i] == '[' {
 						count--
