@@ -1,2 +1,2 @@
 # gobrain
-A brainfuck interpreter written in Go
+A brainf*ck interpreter written in Go
